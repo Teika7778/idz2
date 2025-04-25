@@ -1,4 +1,4 @@
-import math_util
+import src.math_util as math_util
 
 
 def solve(nums, graph):

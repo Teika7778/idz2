@@ -1,7 +1,10 @@
 import pylatex.config as cf
 from pylatex import Document, Command, NoEscape
 
-from src.tasks import task1, task4, task3, task2
+import tasks.task1 as task1
+import tasks.task2 as task2
+import tasks.task3 as task3
+import tasks.task4 as task4
 
 
 def addpacks(doc):
