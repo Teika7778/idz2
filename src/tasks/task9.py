@@ -27,7 +27,7 @@ def solve(nums: list, graph: dict):
     for vertex in graph.keys():
         for neighbourhood_vertex in graph[vertex]:
             if (vertex, neighbourhood_vertex) not in edges and (neighbourhood_vertex, vertex) not in edges:
-                g += fr"\draw ({vertex}) -- ({neighbourhood_vertex});" + "\n"
+                g += fr"\draw ({vertex-1}) -- ({neighbourhood_vertex-1});" + "\n"
                 edges.append((vertex, neighbourhood_vertex))
 
 
