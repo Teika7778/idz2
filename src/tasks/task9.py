@@ -4,23 +4,28 @@ from copy import deepcopy
 
 def find_farthest_vertex(graph: dict, vertex: int):
 
-    dist = 0
-    visited_vertices = deepcopy(list(graph.keys()))
+    new_graph = math_util.graph_closure(graph)
+
+    visited_vertices = deepcopy(list(new_graph.keys()))
     queue = []
 
+    max = (vertex, 0)
+
     queue.append((vertex, 0))
-    visited_vertices.remove(vertex)
 
     while (len(visited_vertices) != 0):
 
         top = queue.pop()
-        dist += 1
-        print(top)
-        for neighbourhood_vertex in graph[vertex]:
-            queue.append((neighbourhood_vertex, dist))
-            visited_vertices.remove(neighbourhood_vertex)
+        visited_vertices.remove(top[0])
 
-        print(queue)
+        if max[1] < top[1]:
+            max = top
+        for neighbourhood_vertex in new_graph[top[0]]:
+            queue.append((neighbourhood_vertex, top[1] + 1))
+            new_graph[neighbourhood_vertex].remove(top[0])
+
+    return max
+            
 
 
 def solve(graph: dict):
@@ -52,9 +57,13 @@ def solve(graph: dict):
                 g += fr"\draw ({vertex-1}) -- ({neighbourhood_vertex-1});" + "\n"
                 edges.append((vertex, neighbourhood_vertex))
 
-    #find_farthest_vertex(graph, 1)
+    print(find_farthest_vertex(graph, 1))
 
-    print(math_util.graph_to_adj_matrix(graph))
+    print(find_farthest_vertex(graph, 3))
+
+    print(find_farthest_vertex(graph, 10))
+
+    print(find_farthest_vertex(graph, 7))
 
 
     g += r"""
