@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 def logical_matrix_mult(a, b):
     n = len(a)
     result = [[0] * n for _ in range(n)]
@@ -43,7 +45,7 @@ def graph_closure(graph: dict): # Функция замыкания списка
 
     for old_vertex in graph.keys():
         if old_vertex not in closed_graph.keys():
-            closed_graph[old_vertex] = graph[old_vertex]
+            closed_graph[old_vertex] = deepcopy(graph[old_vertex])
         else:
             for vertex in graph[old_vertex]:
                 if vertex not in closed_graph[old_vertex]:
