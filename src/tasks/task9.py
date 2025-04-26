@@ -1,7 +1,29 @@
 import math_util as math_util
+from copy import deepcopy
 
 
-def solve(nums: list, graph: dict):
+def find_farthest_vertex(graph: dict, vertex: int):
+
+    dist = 0
+    visited_vertices = deepcopy(list(graph.keys()))
+    queue = []
+
+    queue.append((vertex, 0))
+    visited_vertices.remove(vertex)
+
+    while (len(visited_vertices) != 0):
+
+        top = queue.pop()
+        dist += 1
+        print(top)
+        for neighbourhood_vertex in graph[vertex]:
+            queue.append((neighbourhood_vertex, dist))
+            visited_vertices.remove(neighbourhood_vertex)
+
+        print(queue)
+
+
+def solve(graph: dict):
     solution = []
     mat = math_util.graph_to_adj_matrix(graph)
     solution.append(" Дан граф:")
@@ -29,6 +51,10 @@ def solve(nums: list, graph: dict):
             if (vertex, neighbourhood_vertex) not in edges and (neighbourhood_vertex, vertex) not in edges:
                 g += fr"\draw ({vertex-1}) -- ({neighbourhood_vertex-1});" + "\n"
                 edges.append((vertex, neighbourhood_vertex))
+
+    #find_farthest_vertex(graph, 1)
+
+    print(math_util.graph_to_adj_matrix(graph))
 
 
     g += r"""
