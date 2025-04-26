@@ -37,6 +37,26 @@ def graph_to_adj_matrix(graph):
 
     return adj_matrix
 
+def graph_closure(graph: dict): # Функция замыкания списка смежности до полного
+
+    closed_graph = dict()
+
+    for old_vertex in graph.keys():
+        if old_vertex not in closed_graph.keys():
+            closed_graph[old_vertex] = graph[old_vertex]
+        else:
+            for vertex in graph[old_vertex]:
+                if vertex not in closed_graph[old_vertex]:
+                    closed_graph[old_vertex].append(vertex)
+        for new_vertex in graph[old_vertex]:
+            if new_vertex not in closed_graph.keys():
+                closed_graph[new_vertex] = [old_vertex]
+            else:
+                closed_graph[new_vertex].append(old_vertex)
+
+    return closed_graph
+
+
 
 def identity_matrix(n):
     return [[1 if i == j else 0 for j in range(n)] for i in range(n)]
