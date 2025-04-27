@@ -27,7 +27,7 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
     for v in gray_vertices:
         vertex_colors[v[0]] = "gray!60"
     for v in black_vertices:
-        vertex_colors[v[0]] = "black!70"
+        vertex_colors[v[0]] = "black!60"
 
     
 
@@ -38,9 +38,10 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
     if color == "gray!60":
         for elem in gray_vertices:
             if elem[0] == 1: sign = elem[1]
-    if color == "black!70":
+    if color == "black!60":
         for elem in black_vertices:
             if elem[0] == 1: sign = elem[1]
+    #if sign == 0: color = "red!30"
     g += fr"\node[fill={color}] (0) {{{1}\\${sign}$}};" + "\n"
     
     # Вершина 6
@@ -49,9 +50,10 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
     if color == "gray!60":
         for elem in gray_vertices:
             if elem[0] == 6: sign = elem[1]
-    if color == "black!70":
+    if color == "black!60":
         for elem in black_vertices:
             if elem[0] == 6: sign = elem[1]
+    #if sign == 0: color = "red!30"
     g += fr"\node[below=of 0, fill={color}] (5) {{{6}\\${sign}$}};" + "\n"
     
     # Вершины 2-5 и 7-10
@@ -62,9 +64,10 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
         if color == "gray!60":
             for elem in gray_vertices:
                 if elem[0] == x+1: sign = elem[1]
-        if color == "black!70":
+        if color == "black!60":
             for elem in black_vertices:
                 if elem[0] == x+1: sign = elem[1]
+        #if sign == 0: color = "red!30"
         g += fr"\node[right = of {x-1}, fill={color}] ({x}) {{{vertex_num}\\${sign}$}};" + "\n"
         
         y = x + 5
@@ -74,9 +77,10 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
         if color == "gray!60":
             for elem in gray_vertices:
                 if elem[0] == y+1: sign = elem[1]
-        if color == "black!70":
+        if color == "black!60":
             for elem in black_vertices:
                 if elem[0] == y+1: sign = elem[1]
+        #if sign == 0: color = "red!30"
         g += fr"\node[right = of {y - 1}, fill={color}] ({y}) {{{vertex_num}\\${sign}$}};" + "\n"
 
     # Отрисовка ребер из полного списка смежностей
@@ -106,6 +110,8 @@ def find_farthest_vertex(graph: dict, vertex: int):
 
     max = (vertex, 0)
 
+    solution.append(fr"Начнем обход из вершины {vertex}, будем считать расстояние до неё равное 0:\\")
+
     queue.append((vertex, 0)) # Кладем в очередь изначальную вершину
 
     solution.append(draw_graph(graph, new_graph.keys(), queue, visited_vertices)) # Отрисовка
@@ -119,15 +125,36 @@ def find_farthest_vertex(graph: dict, vertex: int):
 
         if max[1] < top[1]: # Максимальное расстояние
             max = top
-        
+
+        if len(new_graph[top[0]]) >= 2:
+            solution.append(fr"Посетим белых сосдей вершины {top[0]}, это вершины: ")
+        elif len(new_graph[top[0]]) == 1:
+            solution.append(fr"Посетим белого соседа вершины {top[0]}, это вершина: ")
+        else:
+            solution.append(fr"У вершины {top[0]} нет соседей.")
         for neighbourhood_vertex in new_graph[top[0]]:
             queue.append((neighbourhood_vertex, top[1] + 1)) # Добавить в очередь всех детей
+            solution.append(fr"{neighbourhood_vertex}   ")
             top_index = new_graph[neighbourhood_vertex].index(top[0]) 
             visited_vertices.add((new_graph[neighbourhood_vertex].pop(top_index), top[1]))
 
+        solution.append(fr"\\")
+        if len(new_graph[top[0]]) >= 2:
+            solution.append(fr"Запишем под ними обновленное расстояние: {top[1]+1}\\")
+        elif len(new_graph[top[0]]) == 1:
+            solution.append(fr"Запишем под ней обновленное расстояние: {top[1]+1}\\")
+
+        solution.append(fr"Закрасим вершину {top[0]} в черный.\\")
+
+
         solution.append(draw_graph(graph, new_graph.keys(), queue, visited_vertices)) # Отрисовка
 
-    return max, solution
+    solution.append(fr"Обход дерева окончен. Посещены все вершины.\\")
+
+    solution.append(fr"Наиболее удаленных вершин может быть несколько, выберем любую их них. "
+    fr"Наиболее удаленная от изначальной верлины {vertex} - это вершина {max[0]}. \\")
+
+    return max[0], solution
             
 
 
@@ -193,12 +220,25 @@ def solve(graph: dict):
     solution.append(
         r"Выберем случайную вершину:\\"
         rf"$$u = {random_vertex}$$"
-        r"Для поиска наиболее удаленной вершины воспользуемся поиском в ширину, запомная расстояния до посещенных вершин:\\"
+        r"Для поиска наиболее удаленной вершины воспользуемся поиском в ширину"
+        r", запомная расстояния до посещенных вершин (подпишем его под номером вершины):\\"
         )
     
-    res = find_farthest_vertex(closed_graph, random_vertex)
+    res1 = find_farthest_vertex(closed_graph, random_vertex)
 
-    farthest_vertex = res[0]
-    solution += res[1]
+    farthest_vertex1 = res1[0]
+    solution += res1[1]
+
+    solution.append(r"\\ \textbf{Был найден первый конец диаметра}. \\"
+        fr"\\Чтобы найти второй конец диаметра, нужно найти вершину, наиболее удаленную от {farthest_vertex1}\\")
+
+    res2 = find_farthest_vertex(closed_graph, farthest_vertex1)
+
+    farthest_vertex2 = res2[0]
+    solution += res2[1]
+
+    solution.append(r"\\ \textbf{Был найден второй конец диаметра, а значит сам диаметр.} \\"
+                    fr"Это путь из вершины {farthest_vertex1} в вершину {farthest_vertex2} \\")
+
     
     return "\n".join(solution)
