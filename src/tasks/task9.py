@@ -14,7 +14,7 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
     g = r"""   
     \begin{center}
     \begin{tikzpicture}[
-    every node/.style={circle, draw, minimum size=1cm},
+    every node/.style={circle, draw, minimum size=1cm, align=center},
     node distance=2cm and 2cm,  
     >=stealth,
     use positioning/.style={right=of #1}  
@@ -25,31 +25,59 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
     for v in white_vertices:
         vertex_colors[v] = "white"
     for v in gray_vertices:
-        vertex_colors[v] = "gray!60"
+        vertex_colors[v[0]] = "gray!60"
     for v in black_vertices:
-        vertex_colors[v] = "black!70"
+        vertex_colors[v[0]] = "black!70"
 
     
 
     # Отрисовываем все вершины с соответствующими цветами
     # Вершина 1
     color = vertex_colors.get(1, "white")
-    g += fr"\node[fill={color}] (0) {{1}};" + "\n"
+    sign = '?' 
+    if color == "gray!60":
+        for elem in gray_vertices:
+            if elem[0] == 1: sign = elem[1]
+    if color == "black!70":
+        for elem in black_vertices:
+            if elem[0] == 1: sign = elem[1]
+    g += fr"\node[fill={color}] (0) {{{1}\\${sign}$}};" + "\n"
     
     # Вершина 6
     color = vertex_colors.get(6, "white")
-    g += fr"\node[below=of 0, fill={color}] (5) {{6}};" + "\n"
+    sign = '?' 
+    if color == "gray!60":
+        for elem in gray_vertices:
+            if elem[0] == 6: sign = elem[1]
+    if color == "black!70":
+        for elem in black_vertices:
+            if elem[0] == 6: sign = elem[1]
+    g += fr"\node[below=of 0, fill={color}] (5) {{{6}\\${sign}$}};" + "\n"
     
     # Вершины 2-5 и 7-10
     for x in range(1, 5):
         vertex_num = x + 1
         color = vertex_colors.get(vertex_num, "white")
-        g += fr"\node[right = of {x-1}, fill={color}] ({x}) {{{vertex_num}}};" + "\n"
+        sign = '?' 
+        if color == "gray!60":
+            for elem in gray_vertices:
+                if elem[0] == x+1: sign = elem[1]
+        if color == "black!70":
+            for elem in black_vertices:
+                if elem[0] == x+1: sign = elem[1]
+        g += fr"\node[right = of {x-1}, fill={color}] ({x}) {{{vertex_num}\\${sign}$}};" + "\n"
         
         y = x + 5
         vertex_num = y + 1
         color = vertex_colors.get(vertex_num, "white")
-        g += fr"\node[right = of {y - 1}, fill={color}] ({y}) {{{vertex_num}}};" + "\n"
+        sign = '?' 
+        if color == "gray!60":
+            for elem in gray_vertices:
+                if elem[0] == y+1: sign = elem[1]
+        if color == "black!70":
+            for elem in black_vertices:
+                if elem[0] == y+1: sign = elem[1]
+        g += fr"\node[right = of {y - 1}, fill={color}] ({y}) {{{vertex_num}\\${sign}$}};" + "\n"
 
     # Отрисовка ребер из полного списка смежностей
     for v in graph.keys():
@@ -80,14 +108,14 @@ def find_farthest_vertex(graph: dict, vertex: int):
 
     queue.append((vertex, 0)) # Кладем в очередь изначальную вершину
 
-    solution.append(draw_graph(graph, new_graph.keys(), [x[0] for x in queue], list(visited_vertices))) # Отрисовка
+    solution.append(draw_graph(graph, new_graph.keys(), queue, visited_vertices)) # Отрисовка
 
     while (len(visited_vertices) != len(list(graph.keys()))):
 
         
 
         top = queue.pop() # Снимаем вершину с очереди
-        visited_vertices.add(top[0]) # Красим в черный
+        visited_vertices.add(top) # Красим в черный
 
         if max[1] < top[1]: # Максимальное расстояние
             max = top
@@ -95,9 +123,9 @@ def find_farthest_vertex(graph: dict, vertex: int):
         for neighbourhood_vertex in new_graph[top[0]]:
             queue.append((neighbourhood_vertex, top[1] + 1)) # Добавить в очередь всех детей
             top_index = new_graph[neighbourhood_vertex].index(top[0]) 
-            visited_vertices.add(new_graph[neighbourhood_vertex].pop(top_index))
+            visited_vertices.add((new_graph[neighbourhood_vertex].pop(top_index), top[1]))
 
-        solution.append(draw_graph(graph, new_graph.keys(), [x[0] for x in queue], list(visited_vertices))) # Отрисовка
+        solution.append(draw_graph(graph, new_graph.keys(), queue, visited_vertices)) # Отрисовка
 
     return max, solution
             
