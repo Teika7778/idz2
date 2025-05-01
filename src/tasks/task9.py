@@ -3,14 +3,6 @@ from random import choice
 from copy import deepcopy
 
 def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_vertices: list) -> str:
-    """Функция для отрисовки графа с раскраской вершин
-    
-    Args:
-        graph: полный список смежностей графа
-        white_vertices: список белых вершин (не посещенных)
-        gray_vertices: список серых вершин (в очереди)
-        black_vertices: список черных вершин (обработанных)
-    """
     g = r"""   
     \begin{center}
     \begin{tikzpicture}[
@@ -22,65 +14,41 @@ def draw_graph(graph: dict, white_vertices: list, gray_vertices: list, black_ver
     """
     # Создаем словарь для быстрого определения цвета вершины
     vertex_colors = {}
+    vertex_signs = {}
     for v in white_vertices:
         vertex_colors[v] = "white"
+        vertex_signs[v] = '?'
     for v in gray_vertices:
         vertex_colors[v[0]] = "gray!60"
+        vertex_signs[v[0]] = v[1]
     for v in black_vertices:
         vertex_colors[v[0]] = "black!60"
+        vertex_signs[v[0]] = v[1]
 
     
 
     # Отрисовываем все вершины с соответствующими цветами
     # Вершина 1
     color = vertex_colors.get(1, "white")
-    sign = '?' 
-    if color == "gray!60":
-        for elem in gray_vertices:
-            if elem[0] == 1: sign = elem[1]
-    if color == "black!60":
-        for elem in black_vertices:
-            if elem[0] == 1: sign = elem[1]
-    #if sign == 0: color = "red!30"
+    sign = vertex_signs.get(1, '?')
     g += fr"\node[fill={color}] (0) {{{1}\\${sign}$}};" + "\n"
     
     # Вершина 6
     color = vertex_colors.get(6, "white")
-    sign = '?' 
-    if color == "gray!60":
-        for elem in gray_vertices:
-            if elem[0] == 6: sign = elem[1]
-    if color == "black!60":
-        for elem in black_vertices:
-            if elem[0] == 6: sign = elem[1]
-    #if sign == 0: color = "red!30"
+    sign = vertex_signs.get(6, '?')
     g += fr"\node[below=of 0, fill={color}] (5) {{{6}\\${sign}$}};" + "\n"
     
     # Вершины 2-5 и 7-10
     for x in range(1, 5):
         vertex_num = x + 1
         color = vertex_colors.get(vertex_num, "white")
-        sign = '?' 
-        if color == "gray!60":
-            for elem in gray_vertices:
-                if elem[0] == x+1: sign = elem[1]
-        if color == "black!60":
-            for elem in black_vertices:
-                if elem[0] == x+1: sign = elem[1]
-        #if sign == 0: color = "red!30"
+        sign = vertex_signs.get(vertex_num, '?')
         g += fr"\node[right = of {x-1}, fill={color}] ({x}) {{{vertex_num}\\${sign}$}};" + "\n"
         
         y = x + 5
         vertex_num = y + 1
         color = vertex_colors.get(vertex_num, "white")
-        sign = '?' 
-        if color == "gray!60":
-            for elem in gray_vertices:
-                if elem[0] == y+1: sign = elem[1]
-        if color == "black!60":
-            for elem in black_vertices:
-                if elem[0] == y+1: sign = elem[1]
-        #if sign == 0: color = "red!30"
+        sign = vertex_signs.get(vertex_num, '?')
         g += fr"\node[right = of {y - 1}, fill={color}] ({y}) {{{vertex_num}\\${sign}$}};" + "\n"
 
     # Отрисовка ребер из полного списка смежностей
@@ -152,9 +120,136 @@ def find_farthest_vertex(graph: dict, vertex: int):
     solution.append(fr"Обход дерева окончен. Посещены все вершины.\\")
 
     solution.append(fr"Наиболее удаленных вершин может быть несколько, выберем любую их них. "
-    fr"Наиболее удаленная от изначальной верлины {vertex} - это вершина {max[0]}. \\")
+    fr"Наиболее удаленная от изначальной вершины {vertex} - это вершина {max[0]}. \\")
 
-    return max[0], solution
+    return max, solution
+
+
+
+
+def draw_diameter(graph: dict, diameter: dict, draw_center=False) -> str:
+    g = r"""   
+    \begin{center}
+    \begin{tikzpicture}[
+    every node/.style={circle, draw, minimum size=1cm, align=center},
+    node distance=2cm and 2cm,  
+    >=stealth,
+    use positioning/.style={right=of #1}  
+    ]
+    """
+
+    if not draw_center:
+        # Отрисовываем все вершины с соответствующими цветами
+        # Вершина 1
+        color = "red" if 1 in list(diameter.keys()) else "white"
+        g += fr"\node[fill={color}] (0) {{{1}}};" + "\n"
+
+        # Вершина 6
+        color = "red" if 6 in list(diameter.keys()) else "white"
+        g += fr"\node[below=of 0, fill={color}] (5) {{{6}}};" + "\n"
+
+        # Вершины 2-5 и 7-10
+        for x in range(1, 5):
+            vertex_num = x + 1
+            color = "red" if x+1 in list(diameter.keys()) else "white"
+            g += fr"\node[right = of {x-1}, fill={color}] ({x}) {{{vertex_num}}};" + "\n"
+
+            y = x + 5
+            vertex_num = y + 1
+            color = "red" if y+1 in list(diameter.keys()) else "white"
+            g += fr"\node[right = of {y - 1}, fill={color}] ({y}) {{{vertex_num}}};" + "\n"
+
+    else:
+
+        center = min(diameter.values())
+
+        # Отрисовываем все вершины с соответствующими цветами
+        # Вершина 1
+        ex = diameter.get(1, '')
+        color = 'blue' if ex == center else "red" if 1 in list(diameter.keys()) else "white"
+        g += fr"\node[fill={color}] (0) {{{1}\\${ex}$}};" + "\n"
+
+        # Вершина 6
+        ex = diameter.get(6, '')
+        color = 'blue' if ex == center else "red" if 6 in list(diameter.keys()) else "white"
+        g += fr"\node[below=of 0, fill={color}] (5) {{{6}\\${ex}$}};" + "\n"
+
+        # Вершины 2-5 и 7-10
+        for x in range(1, 5):
+            vertex_num = x + 1
+            ex = diameter.get(x+1, '')
+            color = 'blue' if ex == center else "red" if x+1 in list(diameter.keys()) else "white"
+            g += fr"\node[right = of {x-1}, fill={color}] ({x}) {{{vertex_num}\\${ex}$}};" + "\n"
+
+            y = x + 5
+            vertex_num = y + 1
+            ex = diameter.get(y+1, '')
+            color = 'blue' if ex == center else "red" if y+1 in list(diameter.keys()) else "white"
+            g += fr"\node[right = of {y - 1}, fill={color}] ({y}) {{{vertex_num}\\${ex}$}};" + "\n"
+
+    # Отрисовка ребер из полного списка смежностей
+    for v in graph.keys():
+        for neighbour in graph[v]:
+            if v < neighbour:  # Чтобы не дублировать ребра
+                g += fr"\draw ({v-1}) -- ({neighbour-1});" + "\n"
+
+    g += r"""
+    \end{tikzpicture}
+    \end{center}
+    """
+    return g
+
+
+
+def find_diameter(graph: dict, first_diameter_end: int, second_diameter_end, draw_center=False):
+
+    paths = []
+    closed_paths = []
+
+    solution = []
+
+    new_graph = deepcopy(graph)
+
+    visited_vertices = set() # Вершины снятые с очереди (черные)
+
+    queue = [] # Вершины находящиеся в очереди (серые)
+
+    max = (first_diameter_end, 0)
+
+    queue.append((first_diameter_end, 0)) # Кладем в очередь изначальную вершину
+
+    paths.append([first_diameter_end])
+
+    while (len(visited_vertices) != len(list(graph.keys()))):
+
+        top = queue.pop() # Снимаем вершину с очереди
+
+        visited_vertices.add(top) # Красим в черный
+
+        if max[1] < top[1]: # Максимальное расстояние
+            max = top
+
+        if len(new_graph[top[0]]) == 0:
+            closed_paths.append(paths.pop())
+
+        paths_copy = list(deepcopy(paths[-1]))
+
+
+        for neighbourhood_vertex in new_graph[top[0]]:
+            paths.append(paths_copy + [neighbourhood_vertex])
+            queue.append((neighbourhood_vertex, top[1] + 1)) # Добавить в очередь всех детей
+            top_index = new_graph[neighbourhood_vertex].index(top[0]) 
+            visited_vertices.add((new_graph[neighbourhood_vertex].pop(top_index), top[1]))
+
+    for path in closed_paths:
+        if path[0] == first_diameter_end and path[-1] == second_diameter_end:
+            diameter = dict()
+            for vertex in path:
+                diameter[vertex] = find_farthest_vertex(graph, vertex)[0][1]
+            solution.append(draw_diameter(graph, diameter, draw_center))
+
+
+    return solution
             
 
 
@@ -194,7 +289,7 @@ def solve(graph: dict):
     solution.append(g)
 
     # Решение
-    solution.append(r"\textbf{Решение.}")
+    solution.append(r"\textbf{Решение.}\\")
 
     solution.append(
         r"Для решения задачи воспользуемся алгоритмом нахождения диметра дерева:\\"
@@ -219,26 +314,39 @@ def solve(graph: dict):
 
     solution.append(
         r"Выберем случайную вершину:\\"
-        rf"$$u = {random_vertex}$$"
+        fr"$$u = {random_vertex}$$"
         r"Для поиска наиболее удаленной вершины воспользуемся поиском в ширину"
         r", запомная расстояния до посещенных вершин (подпишем его под номером вершины):\\"
         )
     
     res1 = find_farthest_vertex(closed_graph, random_vertex)
 
-    farthest_vertex1 = res1[0]
+    first_diameter_end = res1[0][0]
     solution += res1[1]
 
     solution.append(r"\\ \textbf{Был найден первый конец диаметра}. \\"
-        fr"\\Чтобы найти второй конец диаметра, нужно найти вершину, наиболее удаленную от {farthest_vertex1}\\")
+        fr"$$v = {first_diameter_end}$$"
+        fr"\\Чтобы найти второй конец диаметра, нужно найти вершину, наиболее удаленную от {first_diameter_end}. "
+        r"Алгоритм нахождения аналогичен.\\")
 
-    res2 = find_farthest_vertex(closed_graph, farthest_vertex1)
+    res2 = find_farthest_vertex(closed_graph, first_diameter_end)
 
-    farthest_vertex2 = res2[0]
-    solution += res2[1]
+    second_diameter_end = res2[0][0]
+    #solution += res2[1] #Второй раз не приводим алгоритм
+
+    solution.append(fr"Наиболее удаленная от верлшины {first_diameter_end} - это вершина {second_diameter_end}. \\"
+    fr"$$w = {second_diameter_end}$$")
 
     solution.append(r"\\ \textbf{Был найден второй конец диаметра, а значит сам диаметр.} \\"
-                    fr"Это путь из вершины {farthest_vertex1} в вершину {farthest_vertex2} \\")
+                    fr"Это путь из вершины {first_diameter_end} в вершину {second_diameter_end}:\\")
+
+    solution += find_diameter(closed_graph, first_diameter_end, second_diameter_end)
+
+    solution.append(r"\\Для дальнейшего решения задачи докажем утверждение: \\"
+    )
 
     
     return "\n".join(solution)
+
+
+
