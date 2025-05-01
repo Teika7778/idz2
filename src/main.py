@@ -5,6 +5,7 @@ import tasks.task1 as task1
 import tasks.task2 as task2
 import tasks.task3 as task3
 import tasks.task4 as task4
+import tasks.task9 as task9
 
 
 def addpacks(doc):
@@ -51,7 +52,15 @@ def gen_solution():
             4: [3, 10],
             5: [10]
         }
+
     ))
+    ar.append(task9.solve([6, 3, 6, 6, 5, 7, 5, 10],{
+
+            1: [2, 10, 8, 6],
+            8: [7, 9],
+            4: [3, 10],
+            5: [10]
+        }))
 
     return ar
 
