@@ -236,7 +236,7 @@ def kosaradgu(graph:dict, solution):
 
         node = ret_time[-1]
 
-        solution.append(fr"Не обработанные вершины: {" ".join(list(set(nodes).difference(set(visited_nodes_inv))))} \\"
+        solution.append(fr"Необработанные вершины: {" ".join(list(set(nodes).difference(set(visited_nodes_inv))))} \\"
                         fr"Вершина с наибольшим номером среди не обработанных - {node} \\"
                         r"Запустим из этой вершины поиск в глубину. Закрасим все достижимые вершины одним цветом"
                         r" они будут компонентой сильной связности:\\" )
