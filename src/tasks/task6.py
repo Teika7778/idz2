@@ -1,23 +1,22 @@
 import math_util as math_util
 from math import cos, sin, pi
-from random import choice
 from copy import deepcopy
 from collections import defaultdict
 
-def find_paths_between(graph: dict, start: str, end:str):
+def dfs(graph, edges, visited_edges, node, end, path, paths):
 
-    queue = [start]
+    path.append(node)
 
-    visited_nodes = []
-
-    while(len(visited_nodes) != len(graph.keys())):
-
-        top = queue.pop(0)
-
-        for neighbor in graph[top]:
-            if neighbor not in visited_nodes:
-                visited_nodes.append(neighbor)
-                queue.append(neighbor)
+    if node == end:
+        if  len(visited_edges) == len(edges):
+            paths.append(path)
+        return
+    
+    for neighbor in graph[node]:
+        if (node[0] + neighbor) not in visited_edges:
+            visited_edges.append(node[0]+neighbor)
+            dfs(graph, edges, visited_edges, neighbor, end, deepcopy(path), paths)
+            del visited_edges[visited_edges.index(node[0] + neighbor)]
 
 
 
@@ -182,45 +181,60 @@ def solve(words: list):
         solution.append(r"Граф не Эйлеров, проверьте условие")
         return solution
 
-    solution.append(r"Как известно, Эйлеров путь соединяет вершину, из которой выходит на 1 больше ребро, чем заходит"
+    solution.append(r"Как известно, Эйлеров путь соединяет вершину, из которой выходит на 1 больше ребро, чем заходит "
                     r"с вершиной, в которую входит на одно больше ребро, чем выходит. \\ \\")
     
     solution.append(fr"Начальная вершина - {start}, конечная вершина - {end} \\")
 
-    solution.append(r"Найдем путь между ними, используя алгоритм нахождения Эйлерова пути: \\ \\")
+    solution.append(r"Найдем все пути между ними, используя модифицированный поиск в глубину: \\ \\")
 
-    solution.append(r"\fbox{Alg} \textit{Рекурсивынй алгорим Эйлерова обхода}."
-        r"Обход следует начинать из стартовой вершины. Предлагается такой псевдокод:"
-        r"""
-        \begin{algorithm}
-        \caption{Рекурсивынй алгорим Эйлерова обхода}\label{alg:Example}
-        \begin{algorithmic}
-        \Statex $E$ - массив ребер графа
-        \Statex $E' := \emptyset$ - массив посещенных вершин
-        \Statex $A := \emptyset$ - массив вершин в порядке Эйлерова пути
-        \Function{euler}{$v$, $E'$, $A$}
-            \For{каждого соседа $u$ вершины $v$}
-                \If{$(v, u) \notin E'$}
-                    \State $E' := E' \cup \{(v, u)\}$
-                    \State \Call{euler}{$u$, $E'$, $A$}
-                \EndIf
-            \EndFor
-            \State $A := A \cup \{v\}$
-        \EndFunction
-        \end{algorithmic}
-        \end{algorithm}
-        """)
+    solution.append(r"""\fbox{Alg} \textit{Рекурсивный алгоритм поиска всех эйлеровых путей между 2 вершинами (DFS)}.
+    Обход следует начинать из стартовой вершины.
+    \begin{algorithm}[H]
+    \caption{Рекурсивный алгоритм поиска всех эйлеровых путей между 2 вершинами}\label{alg:DFS_Paths}
+    \begin{algorithmic}
+    \Statex $E_{visited}$ - множество посещенных ребер
+    \Statex $E$ - множество всех ребер графа
+    \Statex $u$ - конечная вершина
+    \Statex $p$ - текущий путь
+    \Statex $P$ - множество найденных эйлеровых путей
+    \Function{DFS}{$v$, $p$}
+        \State $p \gets p \cup \{v\}$ \Comment{Добавляем вершину в путь}
+        \If{$v = u$}
+            \If{$|E_{visited}| = |E|$} \Comment{Проверяем, является ли путь эйлеровым}
+                \State $P \gets P \cup \{p\}$ \Comment{Сохраняем эйлеров путь}
+            \EndIf
+            \State \Return
+        \EndIf
+        \For{$w \in G[v]$} \Comment{Перебираем соседей}
+            \If{$(v, w) \notin E_{visited}$}
+                \State $E_{visited} \gets E_{visited} \cup \{(v, w)\}$ \Comment{Помечаем ребро как посещенное}
+                \State $p_{copy} \gets p$ \Comment{Создаем копию пути}
+                \State \Call{DFS}{$w$, $p_{copy}$}
+                \State $E_{visited} \gets E_{visited} \setminus \{(v, w)\}$ \Comment{Откатываем изменения}
+            \EndIf
+        \EndFor
+    \EndFunction
+    \end{algorithmic}
+    \end{algorithm}""")
 
-    answer1 = []
-    visited_edges1 = []
+    paths = []
 
-    #g[end].append(start)
-    print(end, start)
+    dfs(g, edges, [], start, end, [], paths)
 
-    find_euler(g, choice(nodes), visited_edges1, answer1)
+    solution.append(r"В результате работы алгоритма получим:\\")
 
-    print(answer1[::-1])
+    for e in paths:
+        solution.append(fr"Путь: {" ".join(e)}\\")
 
+    solution.append(r"\textbf{Ответ:}\\")
+
+    for e in paths:
+        s= ''
+        for node in e:
+            s += node[0]
+        s += e[-1][-1]
+        solution.append(fr"{s}\\")
     
 
     return "".join(solution)

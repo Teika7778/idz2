@@ -88,7 +88,7 @@ def find_farthest_vertex(graph: dict, vertex: int):
 
         
 
-        top = queue.pop() # Снимаем вершину с очереди
+        top = queue.pop(0) # Снимаем вершину с очереди
         visited_vertices.add(top) # Красим в черный
 
         if max[1] < top[1]: # Максимальное расстояние
