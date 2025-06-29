@@ -5,6 +5,7 @@ import tasks.task1 as task1
 import tasks.task2 as task2
 import tasks.task3 as task3
 import tasks.task4 as task4
+import tasks.task6 as task6
 import tasks.task7 as task7
 import tasks.task8 as task8
 import tasks.task9 as task9
@@ -49,6 +50,10 @@ def gen_solution():
             5: [10]
         }
 
+    ))
+
+    ar.append(task6.solve(
+        ["ZEH", "IZE", "ZEI", "ZIZ", "HZI", "EHZ", "ZHZ", "HZE"]
     ))
 
     ar.append(task7.solve(20))
